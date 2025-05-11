@@ -130,11 +130,11 @@ spec:
           value: {{ .Values.dashboard.kaniko.image.pullPolicy }}
         - name: NUCLIO_KANIKO_JOB_DELETION_TIMEOUT
           value: {{ .Values.dashboard.kaniko.jobDeletionTimeout | quote }}
-        {{- if .Values.dashboard.kaniko.insecurePushRegistry }}
+        {{- if (include "kaniko.insecurePushRegistry" .) | trim | eq "true" }}
         - name: NUCLIO_KANIKO_INSECURE_PUSH_REGISTRY
           value: "true"
         {{- end }}
-        {{- if .Values.dashboard.kaniko.insecurePullRegistry }}
+        {{- if (include "kaniko.insecurePullRegistry" .) | trim | eq "true" }}
         - name: NUCLIO_KANIKO_INSECURE_PULL_REGISTRY
           value: "true"
         {{- end }}

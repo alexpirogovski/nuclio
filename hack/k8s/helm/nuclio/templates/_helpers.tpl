@@ -56,10 +56,35 @@
 
 {{/*
 Resolve the effective docker registry url and secret Name allowing for global values
+NOTE: Setting global.registry.url to "local" will use hard-coded name and port
 NOTE: make sure to not quote here, because an empty string is false, but a quoted string is not
 */}}
 {{- define "nuclio.registry.url" -}}
+{{- if eq .Values.global.registry.url "local" -}}
+{{ .Values.global.externalHostAddress }}:30030
+{{- else -}}
 {{- .Values.registry.pushPullUrl | default .Values.global.registry.url | default "" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kaniko.insecurePushRegistry" -}}
+{{- if eq .Values.global.registry.url "local" -}}
+true
+{{- else if hasKey .Values.dashboard.kaniko "insecurePushRegistry" -}}
+{{ .Values.dashboard.kaniko.insecurePushRegistry }}
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{- define "kaniko.insecurePullRegistry" -}}
+{{- if eq .Values.global.registry.url "local" -}}
+true
+{{- else if hasKey .Values.dashboard.kaniko "insecurePullRegistry" -}}
+{{ .Values.dashboard.kaniko.insecurePushRegistry }}
+{{- else -}}
+false
+{{- end -}}
 {{- end -}}
 
 {{- define "nuclio.registry.credentialsSecretName" -}}
@@ -73,6 +98,7 @@ NOTE: make sure to not quote here, because an empty string is false, but a quote
 {{- print "" -}}
 {{- end -}}
 {{- end -}}
+
 
 {{- define "nuclio.registry.pushPullUrlName" -}}
 {{- printf "%s-registry-url" (include "nuclio.fullName" .) | trunc 63 -}}
